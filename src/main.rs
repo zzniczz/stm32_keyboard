@@ -3,9 +3,6 @@
 #![no_std]
 #![no_main]
 //#![allow(static_mut_refs)]
-
-
-
 //use cortex_m::delay;
 use panic_halt as _;
 
@@ -76,9 +73,6 @@ fn main() -> ! {
     loop {
 
         usb_dev.poll(&mut [&mut hid, &mut serial]);
-
-
-
         // --- Обработка входящих данных от ПК (конфигурация) ---
         if serial.read(&mut serial_buf).is_ok() {
             // Простейший протокол: первый байт – модификатор, второй – код клавиши
@@ -90,9 +84,7 @@ fn main() -> ! {
                 //let _ = serial .write(b"OK\r\n");
                 let _ = serial.write(&serial_buf[0..2]);
             }
-        }
-
-        
+        }        
         /*
         let key = config_keycode;
 
@@ -114,7 +106,6 @@ fn main() -> ! {
 
         report = scan_k(report, &mut remaining);
 
-
         //if prev_a {
         //    report.modifier = config_modifier;//config_modifier;
         //    report.keycodes[0] = config_keycode;
@@ -133,8 +124,8 @@ fn scan_k(mut buf:KeyboardReport,gpioa_1: &mut (Pin<'A', 0>, Pin<'A', 1>, Pin<'A
                         Pin<'A', 3>, Pin<'A', 4>, Pin<'A', 5,Output>, 
                         Pin<'A', 6,Output>, Pin<'A', 7,Output>)) -> KeyboardReport 
 {
-    let rows = 3;
-    let cops = 5;
+    //let rows = 3;
+    //let cops = 5;
 
     let c1= &gpioa_1.0;
         let c2=&gpioa_1.1;
@@ -148,10 +139,10 @@ fn scan_k(mut buf:KeyboardReport,gpioa_1: &mut (Pin<'A', 0>, Pin<'A', 1>, Pin<'A
 
         //let buf:[i8; 6];//буфер
         //let modifire:i8 = 0x00;   
-        let buf3:KeyboardReport;     
+        //let buf3:KeyboardReport;     
 
         r1.set_low();   //Первый ряд
-        if c1.is_low() {buf = pres_key(buf,0x04)}
+        if c1.is_low() {buf = pres_key(buf,0x04,1)}
         if c2.is_low() {}
         if c3.is_low() {}
         if c4.is_low() {}
@@ -179,7 +170,7 @@ fn scan_k(mut buf:KeyboardReport,gpioa_1: &mut (Pin<'A', 0>, Pin<'A', 1>, Pin<'A
 }
 
 
-fn pres_key(mut buf:KeyboardReport,key:u8)-> KeyboardReport
+fn pres_key(mut buf:KeyboardReport, key:u8, layer:u8)-> KeyboardReport
 {
         
     for i in 0..6 {
@@ -206,4 +197,3 @@ fn reliase_key(mut buf:KeyboardReport,key:u8)-> KeyboardReport
     }    
     buf
 }
-
