@@ -1,23 +1,45 @@
-
-pub  struct keys_layer_struct{
-    pub layer:u8,
-    pub kode:u8
-}
-pub struct keys_struct{
-    pub number:u8,
-    pub key:[keys_layer_struct; 6]
+#[derive(Clone)]
+pub struct keys_layer_struct {
+    pub layer: u8,
+    pub kode: u8
 }
 
-/*
-impl keys_struct {
-    pub fn mod_arr(number:u8, kode:u8, layer:u8, arr: &mut[keys_struct;15]) -> Self {
-    
-    arr[0]={number,}}
+#[derive(Clone)]
+pub struct keys_struct {
+    pub number: u8,
+    pub key: [keys_layer_struct; 6]
+}
 
+pub struct keys_matrix {
+    pub key: [keys_struct; 15]
+}
 
+impl keys_matrix {
+    pub fn mod_arr(mut self, number: u8, kode: u8, layer: u8) -> Self {
+        for ks in self.key.iter_mut() {
+            if ks.number == number {
+                ks.key[layer as usize].kode = kode;
+                return self;
+            }
+        }
+        panic!("Элемент с номером {} не найден", number);
+    }
+    pub fn take_key(&self, number: u8, layer: u8) -> u8 {
+        for ks in self.key.iter() {  // используем iter(), не изменяем
+            if ks.number == number {
+                // layer как usize, если выйдет за 0..5, будет паника
+                return ks.key[layer as usize].kode;
+            }
+        }
+        panic!("Элемент с номером {} не найден", number);
     }
 }
-    */
+
+//pub const DEFAULT_ARRAY:keys_matrix = [
+//    key
+//    ];
+
+
 
 pub const DEFAULT_ARRAY: [keys_struct;15] = [
     keys_struct {number:1, key: [
@@ -141,6 +163,11 @@ pub const DEFAULT_ARRAY: [keys_struct;15] = [
         keys_layer_struct { layer: 6, kode: 0x00 },
     ],}
 ];
+
+pub const DEFAULT_MATRIX: keys_matrix = keys_matrix {
+    key: DEFAULT_ARRAY
+};
+ 
 //pub mut let key_matrix:&[keys_struct] = &[
 //    keys_struct {name:1,kode:1}
 //];

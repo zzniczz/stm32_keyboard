@@ -18,9 +18,12 @@ use usb_device::{prelude::*};
 //use usb_device::bus::UsbBusAllocator;
 use usbd_hid::hid_class::HIDClass;
 use usbd_hid::descriptor::{KeyboardReport, SerializedDescriptor};
-use usbd_serial::SerialPort;   // добавлено
+use usbd_serial::SerialPort;
+
+use crate::matrix::keys_matrix;   // добавлено
 
 mod matrix;
+use matrix::DEFAULT_MATRIX;
 
 #[entry]
 fn main() -> ! {
@@ -72,8 +75,10 @@ fn main() -> ! {
     let mut remaining = (gpioa.pa0, gpioa.pa1, gpioa.pa2, gpioa.pa3, gpioa.pa4, gpioa.pa5.into_push_pull_output(), gpioa.pa6.into_push_pull_output(), gpioa.pa7.into_push_pull_output());
     // Теперь gpioa.pa8, pa9, pa10, pa11, pa12 остались в gpioa, и их можно использовать отдельно.
     
-    let mut key_w = matrix::DEFAULT_ARRAY;
-    
+    let mut key_w = matrix::DEFAULT_MATRIX;
+    //let keys_ma = matrix::keys_matrix;
+    key_w.mod_arr(1, 0x04, 1);
+
     loop {
 
         usb_dev.poll(&mut [&mut hid, &mut serial]);
@@ -108,7 +113,7 @@ fn main() -> ! {
             keycodes: [0; 6],
         };
 
-        report = scan_k(report, &mut remaining);
+        report = scan_k(&DEFAULT_MATRIX, report, &mut remaining);
 
         //if prev_a {
         //    report.modifier = config_modifier;//config_modifier;
@@ -124,7 +129,7 @@ fn main() -> ! {
     }
 }
 
-fn scan_k(mut buf:KeyboardReport,gpioa_1: &mut (Pin<'A', 0>, Pin<'A', 1>, Pin<'A', 2>,
+fn scan_k(key_m: &keys_matrix ,mut buf:KeyboardReport,gpioa_1: &mut (Pin<'A', 0>, Pin<'A', 1>, Pin<'A', 2>,
                         Pin<'A', 3>, Pin<'A', 4>, Pin<'A', 5,Output>, 
                         Pin<'A', 6,Output>, Pin<'A', 7,Output>)) -> KeyboardReport 
 {
@@ -146,27 +151,27 @@ fn scan_k(mut buf:KeyboardReport,gpioa_1: &mut (Pin<'A', 0>, Pin<'A', 1>, Pin<'A
         //let buf3:KeyboardReport;     
 
         r1.set_low();   //Первый ряд
-        if c1.is_low() {buf = pres_key(buf,0x04,1)}
-        if c2.is_low() {}
-        if c3.is_low() {}
-        if c4.is_low() {}
-        if c5.is_low() {}
+        if c1.is_low() {buf = pres_key(buf,1,key_m,1)}
+        if c2.is_low() {buf = pres_key(buf,2,key_m,1)}
+        if c3.is_low() {buf = pres_key(buf,3,key_m,1)}
+        if c4.is_low() {buf = pres_key(buf,4,key_m,1)}
+        if c5.is_low() {buf = pres_key(buf,5,key_m,1)}
         r1.set_high();
 
-        r2.set_low();   //Первый ряд
-        if c1.is_low() {}
-        if c2.is_low() {}
-        if c3.is_low() {}
-        if c4.is_low() {}
-        if c5.is_low() {}
+        r2.set_low();   //Второй ряд
+        if c1.is_low() {buf = pres_key(buf,6,key_m,1)}
+        if c2.is_low() {buf = pres_key(buf,7,key_m,1)}
+        if c3.is_low() {buf = pres_key(buf,8,key_m,1)}
+        if c4.is_low() {buf = pres_key(buf,9,key_m,1)}
+        if c5.is_low() {buf = pres_key(buf,10,key_m,1)}
         r2.set_high();
 
-        r3.set_low();   //Первый ряд
-        if c1.is_low() {}
-        if c2.is_low() {}
-        if c3.is_low() {}
-        if c4.is_low() {}
-        if c5.is_low() {}
+        r3.set_low();   //Третий ряд
+        if c1.is_low() {buf = pres_key(buf,11,key_m,1)}
+        if c2.is_low() {buf = pres_key(buf,12,key_m,1)}
+        if c3.is_low() {buf = pres_key(buf,13,key_m,1)}
+        if c4.is_low() {buf = pres_key(buf,14,key_m,1)}
+        if c5.is_low() {buf = pres_key(buf,15,key_m,1)}
         r3.set_high();
 
         //Вызвратим результат
@@ -174,25 +179,24 @@ fn scan_k(mut buf:KeyboardReport,gpioa_1: &mut (Pin<'A', 0>, Pin<'A', 1>, Pin<'A
 }
 
 
-fn pres_key(mut buf:KeyboardReport, key:u8, layer:u8)-> KeyboardReport
+fn pres_key(mut buf:KeyboardReport, key:u8,key_m:&keys_matrix, layer:u8)-> KeyboardReport
 {
-        
+    //let i:u8=0;    
     for i in 0..6 {
         if buf.keycodes[i]!=0x00 {
             //ячейка занята, пропускаем
         } else {
-            buf.keycodes[i]=key;
+            buf.keycodes[i]=key_m.take_key(key as u8, layer);
             break;
         }
     }    
     buf
 }
 
-fn reliase_key(mut buf:KeyboardReport,key:u8)-> KeyboardReport
-{
-        
+fn reliase_key(mut buf:KeyboardReport, key:u8, key_m:&keys_matrix, layer:u8)-> KeyboardReport
+{        
     for i in 0..6 {
-        if buf.keycodes[i]!=key {
+        if buf.keycodes[i]!=key_m.take_key(key as u8, layer) {
             buf.keycodes[i]=0x00;
             break;
         } else {
