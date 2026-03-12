@@ -20,6 +20,8 @@ use usbd_hid::hid_class::HIDClass;
 use usbd_hid::descriptor::{KeyboardReport, SerializedDescriptor};
 use usbd_serial::SerialPort;   // добавлено
 
+mod matrix;
+
 #[entry]
 fn main() -> ! {
 
@@ -69,6 +71,8 @@ fn main() -> ! {
     // Извлечение без перемещения лишнего:
     let mut remaining = (gpioa.pa0, gpioa.pa1, gpioa.pa2, gpioa.pa3, gpioa.pa4, gpioa.pa5.into_push_pull_output(), gpioa.pa6.into_push_pull_output(), gpioa.pa7.into_push_pull_output());
     // Теперь gpioa.pa8, pa9, pa10, pa11, pa12 остались в gpioa, и их можно использовать отдельно.
+    
+    let mut key_w = matrix::DEFAULT_ARRAY;
     
     loop {
 

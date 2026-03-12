@@ -1,0 +1,146 @@
+
+pub  struct keys_layer_struct{
+    pub layer:u8,
+    pub kode:u8
+}
+pub struct keys_struct{
+    pub number:u8,
+    pub key:[keys_layer_struct; 6]
+}
+
+/*
+impl keys_struct {
+    pub fn mod_arr(number:u8, kode:u8, layer:u8, arr: &mut[keys_struct;15]) -> Self {
+    
+    arr[0]={number,}}
+
+
+    }
+}
+    */
+
+pub const DEFAULT_ARRAY: [keys_struct;15] = [
+    keys_struct {number:1, key: [
+        keys_layer_struct { layer: 1, kode: 0x00 },
+        keys_layer_struct { layer: 2, kode: 0x00 },
+        keys_layer_struct { layer: 3, kode: 0x00 },
+        keys_layer_struct { layer: 4, kode: 0x00 },
+        keys_layer_struct { layer: 5, kode: 0x00 },
+        keys_layer_struct { layer: 6, kode: 0x00 },
+    ],},
+    keys_struct {number:2, key: [
+        keys_layer_struct { layer: 1, kode: 0x00 },
+        keys_layer_struct { layer: 2, kode: 0x00 },
+        keys_layer_struct { layer: 3, kode: 0x00 },
+        keys_layer_struct { layer: 4, kode: 0x00 },
+        keys_layer_struct { layer: 5, kode: 0x00 },
+        keys_layer_struct { layer: 6, kode: 0x00 },
+    ],},
+    keys_struct {number:3, key: [
+        keys_layer_struct { layer: 1, kode: 0x00 },
+        keys_layer_struct { layer: 2, kode: 0x00 },
+        keys_layer_struct { layer: 3, kode: 0x00 },
+        keys_layer_struct { layer: 4, kode: 0x00 },
+        keys_layer_struct { layer: 5, kode: 0x00 },
+        keys_layer_struct { layer: 6, kode: 0x00 },
+    ],},
+    keys_struct {number:4, key: [
+        keys_layer_struct { layer: 1, kode: 0x00 },
+        keys_layer_struct { layer: 2, kode: 0x00 },
+        keys_layer_struct { layer: 3, kode: 0x00 },
+        keys_layer_struct { layer: 4, kode: 0x00 },
+        keys_layer_struct { layer: 5, kode: 0x00 },
+        keys_layer_struct { layer: 6, kode: 0x00 },
+    ],},
+    keys_struct {number:5, key: [
+        keys_layer_struct { layer: 1, kode: 0x00 },
+        keys_layer_struct { layer: 2, kode: 0x00 },
+        keys_layer_struct { layer: 3, kode: 0x00 },
+        keys_layer_struct { layer: 4, kode: 0x00 },
+        keys_layer_struct { layer: 5, kode: 0x00 },
+        keys_layer_struct { layer: 6, kode: 0x00 },
+    ],},
+    keys_struct {number:6, key: [
+        keys_layer_struct { layer: 1, kode: 0x00 },
+        keys_layer_struct { layer: 2, kode: 0x00 },
+        keys_layer_struct { layer: 3, kode: 0x00 },
+        keys_layer_struct { layer: 4, kode: 0x00 },
+        keys_layer_struct { layer: 5, kode: 0x00 },
+        keys_layer_struct { layer: 6, kode: 0x00 },
+    ],},
+    keys_struct {number:7, key: [
+        keys_layer_struct { layer: 1, kode: 0x00 },
+        keys_layer_struct { layer: 2, kode: 0x00 },
+        keys_layer_struct { layer: 3, kode: 0x00 },
+        keys_layer_struct { layer: 4, kode: 0x00 },
+        keys_layer_struct { layer: 5, kode: 0x00 },
+        keys_layer_struct { layer: 6, kode: 0x00 },
+    ],},
+    keys_struct {number:8, key: [
+        keys_layer_struct { layer: 1, kode: 0x00 },
+        keys_layer_struct { layer: 2, kode: 0x00 },
+        keys_layer_struct { layer: 3, kode: 0x00 },
+        keys_layer_struct { layer: 4, kode: 0x00 },
+        keys_layer_struct { layer: 5, kode: 0x00 },
+        keys_layer_struct { layer: 6, kode: 0x00 },
+    ],},
+    keys_struct {number:9, key: [
+        keys_layer_struct { layer: 1, kode: 0x00 },
+        keys_layer_struct { layer: 2, kode: 0x00 },
+        keys_layer_struct { layer: 3, kode: 0x00 },
+        keys_layer_struct { layer: 4, kode: 0x00 },
+        keys_layer_struct { layer: 5, kode: 0x00 },
+        keys_layer_struct { layer: 6, kode: 0x00 },
+    ],},
+    keys_struct {number:10, key: [
+        keys_layer_struct { layer: 1, kode: 0x00 },
+        keys_layer_struct { layer: 2, kode: 0x00 },
+        keys_layer_struct { layer: 3, kode: 0x00 },
+        keys_layer_struct { layer: 4, kode: 0x00 },
+        keys_layer_struct { layer: 5, kode: 0x00 },
+        keys_layer_struct { layer: 6, kode: 0x00 },
+    ],},
+    keys_struct {number:11, key: [
+        keys_layer_struct { layer: 1, kode: 0x00 },
+        keys_layer_struct { layer: 2, kode: 0x00 },
+        keys_layer_struct { layer: 3, kode: 0x00 },
+        keys_layer_struct { layer: 4, kode: 0x00 },
+        keys_layer_struct { layer: 5, kode: 0x00 },
+        keys_layer_struct { layer: 6, kode: 0x00 },
+    ],},
+    keys_struct {number:12, key: [
+        keys_layer_struct { layer: 1, kode: 0x00 },
+        keys_layer_struct { layer: 2, kode: 0x00 },
+        keys_layer_struct { layer: 3, kode: 0x00 },
+        keys_layer_struct { layer: 4, kode: 0x00 },
+        keys_layer_struct { layer: 5, kode: 0x00 },
+        keys_layer_struct { layer: 6, kode: 0x00 },
+    ],},
+    keys_struct {number:13, key: [
+        keys_layer_struct { layer: 1, kode: 0x00 },
+        keys_layer_struct { layer: 2, kode: 0x00 },
+        keys_layer_struct { layer: 3, kode: 0x00 },
+        keys_layer_struct { layer: 4, kode: 0x00 },
+        keys_layer_struct { layer: 5, kode: 0x00 },
+        keys_layer_struct { layer: 6, kode: 0x00 },
+    ],},
+    keys_struct {number:14, key: [
+        keys_layer_struct { layer: 1, kode: 0x00 },
+        keys_layer_struct { layer: 2, kode: 0x00 },
+        keys_layer_struct { layer: 3, kode: 0x00 },
+        keys_layer_struct { layer: 4, kode: 0x00 },
+        keys_layer_struct { layer: 5, kode: 0x00 },
+        keys_layer_struct { layer: 6, kode: 0x00 },
+    ],},
+    keys_struct {number:15, key: [
+        keys_layer_struct { layer: 1, kode: 0x00 },
+        keys_layer_struct { layer: 2, kode: 0x00 },
+        keys_layer_struct { layer: 3, kode: 0x00 },
+        keys_layer_struct { layer: 4, kode: 0x00 },
+        keys_layer_struct { layer: 5, kode: 0x00 },
+        keys_layer_struct { layer: 6, kode: 0x00 },
+    ],}
+];
+//pub mut let key_matrix:&[keys_struct] = &[
+//    keys_struct {name:1,kode:1}
+//];
