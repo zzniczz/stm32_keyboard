@@ -57,7 +57,7 @@ fn main() -> ! {
     let (usb_dm, usb_dp) = init_usb_pins(gpioa.pa11, gpioa.pa12);
 
     // Теперь формируем кортеж для матрицы (порядок должен совпадать с сигнатурой scan_k)
-    let mut matrix_pins = (pa0, pa1, pa2, pa3, pa4, pa5, pa6, pa7); // если scan_k ожидает 6 пинов
+    let mut matrix_pins = (pa0, pa1, pa2, pa3, pa4, pa5.into_push_pull_output(), pa6.into_push_pull_output(), pa7.into_push_pull_output()); // если scan_k ожидает 6 пинов
 
     let usb = USB::new(
         (dp.OTG_FS_GLOBAL, dp.OTG_FS_DEVICE, dp.OTG_FS_PWRCLK),
@@ -99,10 +99,10 @@ fn main() -> ! {
     let mut keymap = matrix::DEFAULT_MATRIX;
     
     // Изменяем нужные клавиши
-    keymap.mod_arr(1, 0x04, 1)
-            .mod_arr(2, 0x05, 1)
-            .mod_arr(6, 0x06, 1)
-            .mod_arr(11, 0x07, 1);
+    keymap.mod_arr(1, 0x01, 1)
+            .mod_arr(2, 0x02, 1)
+            .mod_arr(6, 0x03, 1);
+            //.mod_arr(11, 0x01, 1);
 
     let mut report = KeyboardReport {
             modifier: 0, // без модификаторов
@@ -128,7 +128,7 @@ fn main() -> ! {
                     }
                 }
                 if has_keys {
-                    let _ = serial.write(b"Assigned keys: ");
+                    let _ = serial.write(b"Keys pressed in bufer: ");
                     for &key in &report.keycodes {
                         if key != 0 {
                             let mut buf = [0u8; 4];
@@ -160,7 +160,7 @@ fn main() -> ! {
         } 
         */
 
-        (report , q1) = scan_k(&keymap, report, &mut remaining);
+        scan_k(&keymap, &mut report, &mut remaining);
         //serial_buf[0]=0x05;
        
         //serial .write(b"OK\r\n").ok();
@@ -182,16 +182,16 @@ fn main() -> ! {
 //                        Pin<'A', 0>, Pin<'A', 1>,Pin<'A', 2>,
 //                        Pin<'A', 3>, Pin<'A', 4>, Pin<'A', 5,Output>, 
 //                        Pin<'A', 6,Output>, Pin<'A', 7,Output>)) -> KeyboardReport 
-fn scan_k(key_m: &keys_matrix ,mut buf:KeyboardReport,gpioa_1: &mut (
+fn scan_k(key_m: &keys_matrix , mut buf:&mut KeyboardReport,gpioa_1: &mut (
                         Pin<'A', 0>, Pin<'A', 1>,Pin<'A', 2>,
                         Pin<'A', 3>, Pin<'A', 4>, Pin<'A', 5,Output>, 
-                        Pin<'A', 6,Output>, Pin<'A', 7,Output>)) -> (KeyboardReport, u8)                         
+                        Pin<'A', 6,Output>, Pin<'A', 7,Output>))
 {
     //let rows = 3;
     //let cops = 5;
-
+    //let mut b_uf:&KeyboardReport=buf;
     let c1= &gpioa_1.0;
-        let c2=&gpioa_1.1;
+      let c2=&gpioa_1.1;
         let c3=&gpioa_1.2;
         let c4=&gpioa_1.3;
         let c5=&gpioa_1.4;
@@ -205,50 +205,49 @@ fn scan_k(key_m: &keys_matrix ,mut buf:KeyboardReport,gpioa_1: &mut (
         //let buf3:KeyboardReport;     
 
         r1.set_low();   //Первый ряд
-        if c1.is_high() {buf = pres_key(buf,1,key_m,1)}
-        if c2.is_high() {buf = pres_key(buf,2,key_m,1)}
-        if c3.is_high() {buf = pres_key(buf,3,key_m,1)}
-        if c4.is_high() {buf = pres_key(buf,4,key_m,1)}
-        if c5.is_high() {buf = pres_key(buf,5,key_m,1)}
+        if c1.is_high() {pres_key(&mut buf,2,key_m,1)}
+        if c1.is_low()  {reliase_key(&mut buf,1,key_m,1)}
+        if c2.is_high() {pres_key(&mut buf,2,key_m,1)}        
+        if c3.is_high() {pres_key(&mut buf,3,key_m,1)}
+        if c4.is_high() {pres_key(&mut buf,4,key_m,1)}
+        if c5.is_high() {pres_key(&mut buf,5,key_m,1)}
         
         r1.set_high();
 
         r2.set_low();   //Второй ряд
-        if c1.is_high() {}//{buf = pres_key(buf,6,key_m,1)}
-        if c2.is_high() {buf = pres_key(buf,7,key_m,1)}
-        if c3.is_high() {buf = pres_key(buf,8,key_m,1)}
-        if c4.is_high() {buf = pres_key(buf,9,key_m,1)}
-        if c5.is_high() {buf = pres_key(buf,10,key_m,1)}
+        if c1.is_high() {pres_key(&mut buf,6,key_m,1)}
+        if c2.is_high() {pres_key(&mut buf,7,key_m,1)}
+        if c3.is_high() {pres_key(&mut buf,8,key_m,1)}
+        if c4.is_high() {pres_key(&mut buf,9,key_m,1)}
+        if c5.is_high() {pres_key(&mut buf,10,key_m,1)}
         r2.set_high();
 
         r3.set_low();   //Третий ряд
-        if c1.is_high() {}//{buf = pres_key(buf,11,key_m,1)}
-        if c2.is_high() {buf = pres_key(buf,12,key_m,1)}
-        if c3.is_high() {buf = pres_key(buf,13,key_m,1)}
-        if c4.is_high() {buf = pres_key(buf,14,key_m,1)}
-        if c5.is_high() {buf = pres_key(buf,15,key_m,1)}
+        if c1.is_high() {pres_key(&mut buf,11,key_m,1)}
+        if c2.is_high() {}
+        if c3.is_high() {pres_key(&mut buf,13,key_m,1)}
+        if c4.is_high() {}
+        if c5.is_high() {}
         r3.set_high();
 
         //Вызвратим результат
-        (buf, 1)
+        //(b_uf, 1)
 }
 
 
-fn pres_key(mut buf:KeyboardReport, key:u8,key_m:&keys_matrix, layer:u8)-> KeyboardReport
+fn pres_key(mut buf: &mut KeyboardReport, key: u8, key_m: &keys_matrix, layer: u8) 
 {
-    //let i:u8=0;    
+    let keycode = key_m.take_key(key, layer);
+    // Ищем свободное место в buf.keycodes (где 0)
     for i in 0..6 {
-        if buf.keycodes[i]!=0x00 {
-            //ячейка занята, пропускаем
-        } else {
-            buf.keycodes[i]=key_m.take_key(key as u8, layer);
+        if buf.keycodes[i] == 0 {
+            buf.keycodes[i] = keycode;
             break;
         }
-    }    
-    buf
+    }
 }
 
-fn reliase_key(mut buf:KeyboardReport, key:u8, key_m:&keys_matrix, layer:u8)-> KeyboardReport
+fn reliase_key(mut buf: &mut KeyboardReport, key:u8, key_m: &keys_matrix, layer:u8)
 {        
     for i in 0..6 {
         if buf.keycodes[i]!=key_m.take_key(key as u8, layer) {
@@ -258,7 +257,7 @@ fn reliase_key(mut buf:KeyboardReport, key:u8, key_m:&keys_matrix, layer:u8)-> K
             
         }
     }    
-    buf
+    
 }
 
 fn init_usb_pins(pa11: PA11<Input>, pa12: PA12<Input>) 
