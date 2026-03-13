@@ -15,7 +15,7 @@ pub struct keys_matrix {
 }
 
 impl keys_matrix {
-    pub fn mod_arr(mut self, number: u8, kode: u8, layer: u8) -> Self {
+    pub fn mod_arr(&mut self, number: u8, kode: u8, layer: u8) -> &mut Self {
         for ks in self.key.iter_mut() {
             if ks.number == number {
                 ks.key[layer as usize].kode = kode;
@@ -43,7 +43,7 @@ impl keys_matrix {
 
 pub const DEFAULT_ARRAY: [keys_struct;15] = [
     keys_struct {number:1, key: [
-        keys_layer_struct { layer: 1, kode: 0x00 },
+        keys_layer_struct { layer: 1, kode: 0x04 },
         keys_layer_struct { layer: 2, kode: 0x00 },
         keys_layer_struct { layer: 3, kode: 0x00 },
         keys_layer_struct { layer: 4, kode: 0x00 },
