@@ -246,7 +246,8 @@ fn scan_k(key_m: &keys_matrix, state:&mut KeyboardState, gpioa_1: &mut (
     r1.set_low();   //Первый ряд
     if c1.is_low() {
             state.add_key(key_m.take_key(1, 1))
-        } else {
+        }
+    if c1.is_high() {
             state.remove_key(key_m.take_key(1, 1))
         }
     if c2.is_low() {
