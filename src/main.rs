@@ -4,15 +4,15 @@ use panic_halt as _;
 use cortex_m_rt::entry;
 use stm32f4xx_hal::gpio::*;
 use stm32f4xx_hal::otg_fs::{UsbBus, USB};
-use stm32f4xx_hal::gpio::AF10;
-use stm32f4xx_hal::gpio::Alternate;
+//use stm32f4xx_hal::gpio::AF10;
+//use stm32f4xx_hal::gpio::Alternate;
 use stm32f4xx_hal::rcc::Config;
 use stm32f4xx_hal::{pac, prelude::*};
 use usb_device::{prelude::*};
 use usbd_hid::hid_class::HIDClass;
 use usbd_hid::descriptor::{KeyboardReport, SerializedDescriptor};
 use usbd_serial::SerialPort;
-use crate::matrix::keys_matrix;   // добавлено
+use crate::matrix::KeysMatrix;   // добавлено
 
 mod matrix;
 use matrix::DEFAULT_MATRIX;
@@ -26,23 +26,21 @@ fn main() -> ! {
     let mut rcc = dp
         .RCC
         .freeze(Config::hse(25.MHz()).sysclk(48.MHz()).require_pll48clk());
-
-
     let mut delay = cp.SYST.delay(&rcc.clocks);
 
     let gpioa = dp.GPIOA.split(&mut rcc);
 
     // Забираем пины для матрицы
-    let pa0_ = gpioa.pa0.into_pull_up_input();;
-    let pa1_ = gpioa.pa1.into_pull_up_input();;
-    let pa2_ = gpioa.pa2.into_pull_up_input();;
-    let pa3_ = gpioa.pa3.into_pull_up_input();;
-    let pa4_ = gpioa.pa4.into_pull_up_input();;
+    let pa8_ = gpioa.pa8.into_pull_up_input();
+    let pa1_ = gpioa.pa1.into_pull_up_input();
+    let pa2_ = gpioa.pa2.into_pull_up_input();
+    let pa3_ = gpioa.pa3.into_pull_up_input();
+    let pa4_ = gpioa.pa4.into_pull_up_input();
     let pa5_ = gpioa.pa5.into_push_pull_output();
     let pa6_ = gpioa.pa6.into_push_pull_output();
     let pa7_ = gpioa.pa7.into_push_pull_output();
-    let mut matrix_pins = 
-        (pa0_, pa1_, pa2_, pa3_, pa4_, pa5_.into_push_pull_output(), pa6_.into_push_pull_output(), pa7_.into_push_pull_output());
+    let matrix_pins = 
+        (pa8_, pa1_, pa2_, pa3_, pa4_, pa5_.into_push_pull_output(), pa6_.into_push_pull_output(), pa7_.into_push_pull_output());
 
     // Передаём PA11 и PA12 в функцию инициализации USB
     let (usb_dm, usb_dp) = init_usb_pins(gpioa.pa11, gpioa.pa12);
@@ -91,14 +89,13 @@ fn main() -> ! {
     .mod_arr(6, 0x09, 1)
     .mod_arr(7, 0x0a, 1)
     .mod_arr(8, 0x0b, 1)
-    .mod_arr(9, 0x0c, 1)
+    .mod_arr(9, 0x0c, 1)//bblghm
     .mod_arr(10, 0x0d, 1)
     .mod_arr(11, 0x0e, 1)
     .mod_arr(12, 0x0f, 1)
     .mod_arr(13, 0x10, 1)
     .mod_arr(14, 0x11, 1)
     .mod_arr(15, 0x12, 1);
-            //.mod_arr(11, 0x01, 1);
 
     let mut report = KeyboardReport {
             modifier: 0, // без модификаторов
@@ -106,12 +103,13 @@ fn main() -> ! {
             leds: 0,
             keycodes: [0; 6],
         };
-    //report.keycodes[0]=keymap.take_key(1,1);
+    let rep=&report;
+    //report.keycodes[0]=keymap.take_key(1,1);bglbgmhc
     //let mut q1:u8=0;
-
+    let mut layer: u8 = 1;
     let mut keboard_state = KeyboardState::new();
 
-    keboard_state.add_key(keymap.take_key(1, 1));
+ //   keboard_state.add_key(keymap.take_key(1, 1));
 //    keboard_state.add_key(keymap.take_key(7, 1));
 //    keboard_state.add_key(keymap.take_key(11, 1));
 
@@ -122,13 +120,13 @@ fn main() -> ! {
         /*
         if serial.read(&mut serial_buf).is_ok() {
             
-        } else if serial_buf.len() >= 2 {
+        //} else if serial_buf.len() >= 2 {
             // ...existing code...
             //serial_buf[0] = key_w.take_key(1, 1);
            
         */
-                
-        scan_k(&keymap, &mut keboard_state, &mut remaining);
+        
+        scan_k(&keymap, &mut keboard_state, &mut layer, &mut remaining);
         //let report = keboard_state.to_report();
         report = keboard_state.to_report();
         
@@ -189,35 +187,42 @@ impl KeyboardState {
 }
 
 fn scan_k(
-    key_m: &keys_matrix,
+    key_m: &KeysMatrix,
     state: &mut KeyboardState,
+    layer: &mut u8,
     gpioa_1: &mut (
-        Pin<'A', 0>,Pin<'A', 1>,Pin<'A', 2>,Pin<'A', 3>,Pin<'A', 4>,
-        Pin<'A', 5, Output>,Pin<'A', 6, Output>,Pin<'A', 7, Output>,
+        Pin<'A', 8, Input>,
+        Pin<'A', 1, Input>,
+        Pin<'A', 2, Input>,
+        Pin<'A', 3, Input>,
+        Pin<'A', 4, Input>,
+        Pin<'A', 5, Output<PushPull>>,
+        Pin<'A', 6, Output<PushPull>>,
+        Pin<'A', 7, Output<PushPull>>,
     ),
 ) {
     gpioa_1.5.set_low();
-    if gpioa_1.0.is_low() {state.add_key(key_m.take_key(1, 1));} else {state.remove_key(key_m.take_key(1, 1));}
-    if gpioa_1.1.is_low() {state.add_key(key_m.take_key(2, 1));} else {state.remove_key(key_m.take_key(2, 1));}
-    if gpioa_1.2.is_low() {state.add_key(key_m.take_key(3, 1));} else {state.remove_key(key_m.take_key(3, 1));}
-    if gpioa_1.3.is_low() {state.add_key(key_m.take_key(4, 1));} else {state.remove_key(key_m.take_key(4, 1));}
-    if gpioa_1.4.is_low() {state.add_key(key_m.take_key(5, 1));} else {state.remove_key(key_m.take_key(5, 1));}
+    if gpioa_1.0.is_low() {state.add_key(key_m.take_key(1, *layer));} else {state.remove_key(key_m.take_key(1, *layer));}
+    if gpioa_1.1.is_low() {state.add_key(key_m.take_key(2, *layer));} else {state.remove_key(key_m.take_key(2, *layer));}
+    if gpioa_1.2.is_low() {state.add_key(key_m.take_key(3, *layer));} else {state.remove_key(key_m.take_key(3, *layer));}
+    if gpioa_1.3.is_low() {state.add_key(key_m.take_key(4, *layer));} else {state.remove_key(key_m.take_key(4, *layer));}
+    if gpioa_1.4.is_low() {state.add_key(key_m.take_key(5, *layer));} else {state.remove_key(key_m.take_key(5, *layer));}
     gpioa_1.5.set_high();
 
    gpioa_1.6.set_low();
-    if gpioa_1.0.is_low() {state.add_key(key_m.take_key(6, 1));} else {state.remove_key(key_m.take_key(6, 1));}
-    if gpioa_1.1.is_low() {state.add_key(key_m.take_key(7, 1));} else {state.remove_key(key_m.take_key(7, 1));}
-    if gpioa_1.2.is_low() {state.add_key(key_m.take_key(8, 1));} else {state.remove_key(key_m.take_key(8, 1));}
-    if gpioa_1.3.is_low() {state.add_key(key_m.take_key(9, 1));} else {state.remove_key(key_m.take_key(9, 1));}
-    if gpioa_1.4.is_low() {state.add_key(key_m.take_key(10, 1));} else {state.remove_key(key_m.take_key(10, 1));}
+    if gpioa_1.0.is_low() {state.add_key(key_m.take_key(6, *layer));} else {state.remove_key(key_m.take_key(6, *layer));}
+    if gpioa_1.1.is_low() {state.add_key(key_m.take_key(7, *layer));} else {state.remove_key(key_m.take_key(7, *layer));}
+    if gpioa_1.2.is_low() {state.add_key(key_m.take_key(8, *layer));} else {state.remove_key(key_m.take_key(8, *layer));}
+    if gpioa_1.3.is_low() {state.add_key(key_m.take_key(9, *layer));} else {state.remove_key(key_m.take_key(9, *layer));}
+    if gpioa_1.4.is_low() {state.add_key(key_m.take_key(10, *layer));} else {state.remove_key(key_m.take_key(10, *layer));}
     gpioa_1.6.set_high();
 
    gpioa_1.7.set_low();
-    if gpioa_1.0.is_low() {state.add_key(key_m.take_key(11, 1));} else {state.remove_key(key_m.take_key(11, 1));}
-    if gpioa_1.1.is_low() {state.add_key(key_m.take_key(12, 1));} else {state.remove_key(key_m.take_key(12, 1));}
-    if gpioa_1.2.is_low() {state.add_key(key_m.take_key(13, 1));} else {state.remove_key(key_m.take_key(13, 1));}
-    if gpioa_1.3.is_low() {state.add_key(key_m.take_key(14, 1));} else {state.remove_key(key_m.take_key(14, 1));}
-    if gpioa_1.4.is_low() {state.add_key(key_m.take_key(15, 1));} else {state.remove_key(key_m.take_key(15, 1));}
+    if gpioa_1.0.is_low() {state.add_key(key_m.take_key(11, *layer));} else {state.remove_key(key_m.take_key(11, *layer));}
+    if gpioa_1.1.is_low() {state.add_key(key_m.take_key(12, *layer));} else {state.remove_key(key_m.take_key(12, *layer));}
+    if gpioa_1.2.is_low() {state.add_key(key_m.take_key(13, *layer));} else {state.remove_key(key_m.take_key(13, *layer));}
+    if gpioa_1.3.is_low() {state.add_key(key_m.take_key(14, *layer));} else {state.remove_key(key_m.take_key(14, *layer));}
+    if gpioa_1.4.is_low() {state.add_key(key_m.take_key(15, *layer));} else {state.remove_key(key_m.take_key(15, *layer));}
     gpioa_1.7.set_high();
 }
 
