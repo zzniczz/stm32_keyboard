@@ -99,7 +99,7 @@ fn main() -> ! {
     let mut keymap = matrix::DEFAULT_MATRIX;
     
     // Изменяем нужные клавиши
-    //keymap.mod_arr(1, 0x01, 1)
+    keymap.mod_arr(1, 0x01, 1);
     //        .mod_arr(2, 0x02, 1)
     //        .mod_arr(6, 0x03, 1);
             //.mod_arr(11, 0x01, 1);

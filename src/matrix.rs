@@ -24,10 +24,11 @@ impl keys_matrix {
         }
         panic!("Элемент с номером {} не найден", number);
     }
-    pub fn take_key(&self, number: u8, layer: u8) -> u8 {
+    pub fn take_key(&self, number: u8, mut layer: u8) -> u8 {
         for ks in self.key.iter() {  // используем iter(), не изменяем
             if ks.number == number {
                 // layer как usize, если выйдет за 0..5, будет паника
+                layer = layer-1;
                 return ks.key[layer as usize].kode;
             }
         }
