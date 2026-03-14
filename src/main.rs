@@ -99,9 +99,9 @@ fn main() -> ! {
     let mut keymap = matrix::DEFAULT_MATRIX;
     
     // Изменяем нужные клавиши
-    keymap.mod_arr(1, 0x01, 1);
-    //        .mod_arr(2, 0x02, 1)
-    //        .mod_arr(6, 0x03, 1);
+    keymap.mod_arr(1, 0x04, 1)
+            .mod_arr(7, 0x05, 1)
+            .mod_arr(11, 0x06, 1);
             //.mod_arr(11, 0x01, 1);
 
     let mut report = KeyboardReport {
@@ -111,13 +111,19 @@ fn main() -> ! {
             keycodes: [0; 6],
         };
     //report.keycodes[0]=keymap.take_key(1,1);
-    let mut q1:u8=0;
+    //let mut q1:u8=0;
 
     let mut keboard_state = KeyboardState::new();
+
+    keboard_state.add_key(keymap.take_key(1, 1));
+    keboard_state.add_key(keymap.take_key(7, 1));
+    keboard_state.add_key(keymap.take_key(11, 1));
+
     loop {
 
         usb_dev.poll(&mut [&mut hid, &mut serial]);
         // --- Обработка входящих данных от ПК (конфигурация) ---
+        /*
         if serial.read(&mut serial_buf).is_ok() {
              if serial_buf.len() >= 1 && serial_buf[0] == b'?' {  // Команда для запроса информации о клавишах
                 // Отправляем информацию о назначенных клавишах (например, keycodes из report или из matrix)
@@ -150,18 +156,24 @@ fn main() -> ! {
                             }
                         }
                     }
+                    
                     let _ = serial.write(b"No keys assigned\r\n");
                 }
             }
         } else if serial_buf.len() >= 2 {
             // ...existing code...
             //serial_buf[0] = key_w.take_key(1, 1);
-            //let _ = serial.write(serial_buf[0..3]);        }
-        }
+           
+        */
+        //let mut buf = [0u8; 6]; // достаточно большой буфер
+        //let test_code = keymap.take_key(1, 0);  // Должно быть 0x01
+        //if test_code ==0x01 {
+        //    let _ = serial.write(b"***{}");
+        // }
         
         scan_k(&keymap, &mut keboard_state, &mut remaining);
         //let report = keboard_state.to_report();
-        //report = keboard_state.to_report();
+        report = keboard_state.to_report();
         
         // Отправляем отчёт на компьютер
         hid.push_input(&report).ok(); // Если USB не готов, просто игнорируем ошибку
