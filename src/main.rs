@@ -73,23 +73,8 @@ fn main() -> ! {
 
     let mut remaining = matrix_pins;
     let mut keymap = DEFAULT_MATRIX;
-    // Раскладка по умолчанию для клавиатуры 15 клавиш, 1 слой (конфигурация 3 на 5 кнопок)
-    keymap
-    .mod_arr(1, 0x04, 1)
-    .mod_arr(2, 0x05, 1)
-    .mod_arr(3, 0x06, 1)
-    .mod_arr(4, 0x07, 1)
-    .mod_arr(5, 0x08, 1)
-    .mod_arr(6, 0x09, 1)
-    .mod_arr(7, 0x0a, 1)
-    .mod_arr(8, 0x0b, 1)
-    .mod_arr(9, 0x0c, 1)
-    .mod_arr(10, 0x0d, 1)
-    .mod_arr(11, 0x0e, 1)
-    .mod_arr(12, 0x0f, 1)
-    .mod_arr(13, 0x10, 1)
-    .mod_arr(14, 0x11, 1)
-    .mod_arr(15, 0x12, 1);
+    
+    keymap_init_default(&mut keymap);
 
     let mut report = KeyboardReport {
             modifier: 0, // без модификаторов
@@ -97,7 +82,7 @@ fn main() -> ! {
             leds: 0,
             keycodes: [0; 6],
         };
-    let rep=&report;
+    //let rep=&report;
     let mut layer: u8 = 1;
     let mut keboard_state = KeyboardState::new();
 
@@ -115,19 +100,20 @@ fn main() -> ! {
         */
         
         scan_k(&keymap, &mut keboard_state, &mut layer, &mut delay, &mut remaining);
-        //let report = keboard_state.to_report();
-        report = keboard_state.to_report();
         
-        // Отправляем отчёт на компьютер
-        hid.push_input(&report).ok(); // Если USB не готов, просто игнорируем ошибку
+        report = keboard_state.to_report();
 
-        // Небольшая задержка для снижения нагрузки
+        // Отправляем отчёт на компьютер
+        hid.push_input(&report).ok();
+
+        // Задержка для снижения нагрузки на USB
         delay.delay_ms(10);
         
     }
 }
 
 struct KeyboardState {
+    // Массив для хранения кодов нажатых клавиш (до 6 одновременно)
     pressed_keys: [u8;6],
 }
 
@@ -190,8 +176,11 @@ fn scan_k(
         Pin<'A', 7, Output<PushPull>>,
     ),
 ) {
+    // Сканирование матрицы клавиш
     gpioa_1.5.set_low();
+    // Задержка для стабилизации сигнала
     delay.delay_ns(30);
+    // Сканируем строки 1-5
     if gpioa_1.0.is_low() {state.add_key(key_m.take_key(1, *layer));} else {state.remove_key(key_m.take_key(1, *layer));}
     if gpioa_1.1.is_low() {state.add_key(key_m.take_key(2, *layer));} else {state.remove_key(key_m.take_key(2, *layer));}
     if gpioa_1.2.is_low() {state.add_key(key_m.take_key(3, *layer));} else {state.remove_key(key_m.take_key(3, *layer));}
@@ -220,9 +209,27 @@ fn scan_k(
 
 fn init_usb_pins(pa11: PA11<Input>, pa12: PA12<Input>) 
     -> (Pin<'A', 11>, Pin<'A', 12>) {
+    // Инициализация пинов для USB
     let usb_dm = pa11;  // PA11 как D-
     let usb_dp = pa12;  // PA12 как D+
     (usb_dm, usb_dp)
 }
 
-//теперь не стабатывает первый ряд
+fn keymap_init_default(keymap: &mut KeysMatrix) {
+    // Инициализация дефолтной раскладки
+    keymap.mod_arr(1, 0x04,1) // Клавиша 1 на слое 1 - код 0x04 (A)
+        .mod_arr(2, 0x05, 1) // Клавиша 2 на слое 1 - код 0x05 (B)
+        .mod_arr(3, 0x06, 1) // Клавиша 3 на слое 1 - код 0x06 (C)
+        .mod_arr(4, 0x07, 1) // Клавиша 4 на слое 1 - код 0x07 (D)
+        .mod_arr(5, 0x08, 1) // Клавиша 5 на слое 1 - код 0x08 (E)
+        .mod_arr(6, 0x09, 1) // Клавиша 6 на слое 1 - код 0x09 (F)
+        .mod_arr(7, 0x0a, 1) // Клавиша 7 на слое 1 - код 0x0a (G)
+        .mod_arr(8, 0x0b, 1) // Клавиша 8 на слое 1 - код 0x0b (H)
+        .mod_arr(9, 0x0c, 1) // Клавиша 9 на слое 1 - код 0x0c (I)
+        .mod_arr(10,0x0d,1) // Клавиша10 на слое 1 - код 0x0d (J)
+        .mod_arr(11,0x0e,1) // Клавиша11 на слое 1 - код 0x0e (K)
+        .mod_arr(12,0x0f,1) // Клавиша12 на слое 1 - код 0x0f (L)
+        .mod_arr(13,0x10,1) // Клавиша13 на слое 1 - код 0x10 (M)
+        .mod_arr(14,0x11,1) // Клавиша14 на слое 1 - код 0x11 (N)
+        .mod_arr(15,0x12,1); // Клавиша15 на слое 1 - код 0
+}
