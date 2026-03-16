@@ -69,18 +69,11 @@ fn main() -> ! {
             .product("HER_production!")
             .serial_number("TEST")])
         .unwrap()
-        .build();
+        .build(); 
 
-    //let mut prev_a = true;
-    //let mut config_received: [u8; 64] = [0; 64];
-    //let mut config_modifier: u8 = 0x00;
-    //let mut config_keycode: u8 = 0x04;
-    //let mut serial_buf = [0u8; 8];   
-
-    // Извлечение без перемещения лишнего:
     let mut remaining = matrix_pins;
     let mut keymap = DEFAULT_MATRIX;
-    // Раскладка по умолчанию
+    // Раскладка по умолчанию для клавиатуры 15 клавиш, 1 слой (конфигурация 3 на 5 кнопок)
     keymap
     .mod_arr(1, 0x04, 1)
     .mod_arr(2, 0x05, 1)
@@ -90,7 +83,7 @@ fn main() -> ! {
     .mod_arr(6, 0x09, 1)
     .mod_arr(7, 0x0a, 1)
     .mod_arr(8, 0x0b, 1)
-    .mod_arr(9, 0x0c, 1)//bblghm
+    .mod_arr(9, 0x0c, 1)
     .mod_arr(10, 0x0d, 1)
     .mod_arr(11, 0x0e, 1)
     .mod_arr(12, 0x0f, 1)
@@ -105,14 +98,8 @@ fn main() -> ! {
             keycodes: [0; 6],
         };
     let rep=&report;
-    //report.keycodes[0]=keymap.take_key(1,1);bglbgmhc
-    //let mut q1:u8=0;
     let mut layer: u8 = 1;
     let mut keboard_state = KeyboardState::new();
-
- //   keboard_state.add_key(keymap.take_key(1, 1));
-//    keboard_state.add_key(keymap.take_key(7, 1));
-//    keboard_state.add_key(keymap.take_key(11, 1));
 
     loop {
 
