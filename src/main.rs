@@ -207,7 +207,7 @@ fn scan_k(
     gpioa_1.7.set_high();
 }
 
-fn init_usb_pins(pa11: PA11<Input>, pa12: PA12<Input>) 
+fn init_usb_pins(pa11: PA11<Input>, pa12: PA12<Input>)//
     -> (Pin<'A', 11>, Pin<'A', 12>) {
     // Инициализация пинов для USB
     let usb_dm = pa11;  // PA11 как D-
