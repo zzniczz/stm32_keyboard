@@ -259,7 +259,6 @@ pub const ASCII_codes_with_control: [u8; 150] = [
     0x50, // 80 - Left Arrow
     0x51, // 81 - Down Arrow
     0x52, // 82 - Up Arrow
-    // Коды клавиш для клавиатуры продолжаются до 0x65 (Keyboard Application)
     0x53, // 83 - Num Lock
     0x54, // 84 - Keypad /
     0x55, // 85 - Keypad *
@@ -279,7 +278,6 @@ pub const ASCII_codes_with_control: [u8; 150] = [
     0x63, // 99 - Keypad . and Delete
     0x64, // 100 - Non-US \ and |
     0x65, // 101 - Keyboard Application (Фунция - открывает меню приложений, аналог правой кнопки мыши)
-    // Коды клавиш для клавиатуры продолжаются до 0xE7 (Keyboard Right GUI)
     0x66, // 102 - Keyboard Power
     0x67, // 103 - Keyboard Sleep
     0x68, // 104 - Keyboard Wake
